@@ -26,9 +26,11 @@ let eggCount;
 let lifeCount = 3;
 let dragons;
 let eggs;
-let oneEgg;
 let eggs2;
 let eggs3;
+let gameOver = false;
+let statusText;
+let platforms
 
 let game = new Phaser.Game(config);
 
@@ -40,8 +42,8 @@ function preload() {
   this.load.image("egg", "assets/one-egg.png");
   this.load.image("egg2", "assets/two-eggs.png");
   this.load.image("egg3", "assets/three-eggs.png");
-  this.load.image("egg-count", "assets/egg-count.png");
-  this.load.image("life-count", "assets/life-count.png");
+  this.load.image("eggCount", "assets/egg-count.png");
+  this.load.image("lifeCount", "assets/life-count.png");
   this.load.spritesheet("hero", "assets/hero.png", {
     frameWidth: 50,
     frameHeight: 58
@@ -56,6 +58,8 @@ function create() {
   hero = this.physics.add.sprite(190, 300, "hero");
   hero.setBounce(0.2);
   hero.setCollideWorldBounds(true);
+
+  // Appending dragons
   dragons = this.physics.add.staticGroup({
     setScale: { x: 0.9, y: 0.9 },
     key: "dragon-asleep",
@@ -68,6 +72,7 @@ function create() {
       {
         key: "dragon-awake",
         frames: [{ key: "dragon-asleep" }, { key: "dragon-awake" }],
+        // How often it changes from asleep to awake
         frameRate: Math.random(),
         repeat: -1
       },
@@ -120,17 +125,28 @@ function create() {
   });
 
   // Appending egg and life count symbols
-  this.add.image(16, 583, "egg-count");
-  this.add.image(80, 583, "life-count");
+  platforms = this.physics.add.staticGroup()
+  platforms.create(16, 583, "eggCount");
+  platforms.create(80, 583, "lifeCount");
 
   // Scoring text
   eggCount = this.add.text(30, 570, "0", { fontSize: "30px", fill: "#000" });
   lifeCount = this.add.text(94, 570, "3", { fontSize: "30px", fill: "#000" });
 
-  // Colliders to make eggs dissapear when hero grabs it
+  // End Screen text
+  statusText = this.add.text(300, 300, "", { fontSize: "30px", fill: "#000" });
+
+  // Overlaps to make eggs dissapear when hero grabs it
   this.physics.add.overlap(hero, eggs, collectOneEgg, null, this);
-  this.physics.add.collider(hero, eggs2, collectTwoEgg, null, this);
-  this.physics.add.collider(hero, eggs3, collectThreeEgg, null, this);
+  this.physics.add.overlap(hero, eggs2, collectTwoEgg, null, this);
+  this.physics.add.overlap(hero, eggs3, collectThreeEgg, null, this);
+
+  // Colliders for dragon fire breath to end game when touching
+  this.physics.add.collider(hero, dragons, hitFireBreath, null, this);
+
+  // Colliders for scoreboard at bottom so hero doesn't go through
+  this.physics.add.collider(hero, platforms);
+  this.physics.add.collider(hero, lifeCount);
 }
 
 function update() {
@@ -155,7 +171,7 @@ function update() {
     // No weird gravity when character is idle
   } else {
     hero.setVelocityX(0);
-    hero.body.velocity.y = 0;
+    hero.setVelocityY(0);
   }
 }
 
@@ -166,6 +182,7 @@ function collectOneEgg(hero, egg) {
   eggCount.setText(eggScore);
 
   if (eggs.countActive(true) === 0) {
+    console.log("I've got nothing left - Ian Beale circa 2014");
     eggs.children.iterate(function (child) {
       child.enableBody(true, child.x, 500, child.y, -500, true, true);
     });
@@ -178,6 +195,7 @@ function collectTwoEgg(hero, egg2) {
   eggCount.setText(eggScore);
 
   if (eggs2.countActive(true) === 0) {
+    console.log("I've got nothing left - Ian Beale circa 2014");
     eggs2.children.iterate(function (child) {
       child.enableBody(true, child.x, 320, child.y, -320, true, true);
     });
@@ -189,10 +207,29 @@ function collectThreeEgg(hero, egg3) {
   eggScore += 3;
   eggCount.setText(eggScore);
 
-    if (eggs3.countActive(true) === 0) {
-      eggs3.children.iterate(function (child) {
-        child.enableBody(true, child.x, 145, child.y, -145, true, true);
-      });
-    }
+  if (eggs3.countActive(true) === 0) {
+    console.log("I've got nothing left - Ian Beale circa 2014");
+    eggs3.children.iterate(function (child) {
+      child.enableBody(true, child.x, 145, child.y, -145, true, true);
+    });
+  }
+}
 
+// Touching fire and game ending
+function hitFireBreath(hero, dragon) {
+  if (
+    dragons.children.entries[1].anims.currentAnim.frames[1].nextFrame
+      .textureKey === "dragon-awake"
+  ) {
+    console.log("awake-die");
+    gameOver = true;
+    statusText.setText("You Loose!");
+    this.physics.pause();
+    hero.setTint(0xff0000);
+  } else if (
+    dragons.children.entries[1].anims.currentAnim.frames[1].nextFrame
+      .textureKey === "dragon-asleep"
+  ) {
+    console.log("alive-stay");
+  }
 }
