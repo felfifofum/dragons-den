@@ -8,7 +8,7 @@ let config = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: false
+      debug: true
     }
   },
   scene: {
@@ -27,8 +27,8 @@ let lifeCount = 3;
 let dragons;
 let eggs;
 let oneEgg;
-let twoEggs;
-let threeEggs;
+let eggs2;
+let eggs3;
 
 let game = new Phaser.Game(config);
 
@@ -38,8 +38,8 @@ function preload() {
   this.load.image("dragon-asleep", "assets/dragon-asleep.png");
   this.load.image("dragon-awake", "assets/dragon-awake.png");
   this.load.image("egg", "assets/one-egg.png");
-  // this.load.image("two-eggs", "assets/two-eggs.png");
-  // this.load.image("three-eggs", "assets/three-eggs.png");
+  this.load.image("egg2", "assets/two-eggs.png");
+  this.load.image("egg3", "assets/three-eggs.png");
   this.load.image("egg-count", "assets/egg-count.png");
   this.load.image("life-count", "assets/life-count.png");
   this.load.spritesheet("hero", "assets/hero.png", {
@@ -104,21 +104,20 @@ function create() {
   eggs = this.physics.add.staticGroup({
     key: "egg",
     repeat: 2,
-    setXY: { x: 12, y: 500, stepX: 200 }
+    setXY: { x: 40, y: 500, stepX: 200 }
   });
 
+  eggs2 = this.physics.add.group({
+    key: "egg2",
+    repeat: 2,
+    setXY: { x: 40, y: 320, stepX: 220 }
+  });
 
-  // twoEggs = this.physics.add.group({
-  //   setScale: { x: 0.9, y: 0.9 },
-  //   key: "two-eggs",
-  //   setXY: { x: 420, y: 320 }
-  // });
-
-  // threeEggs = this.physics.add.group({
-  //   setScale: { x: 0.9, y: 0.9 },
-  //   key: "three-eggs",
-  //   setXY: { x: 420, y: 500 }
-  // });
+  eggs3 = this.physics.add.group({
+    key: "egg3",
+    repeat: 2,
+    setXY: { x: 40, y: 145, stepX: 245 }
+  });
 
   // Appending egg and life count symbols
   this.add.image(16, 583, "egg-count");
@@ -130,8 +129,8 @@ function create() {
 
   // Colliders to make eggs dissapear when hero grabs it
   this.physics.add.overlap(hero, eggs, collectOneEgg, null, this);
-  // this.physics.add.collider(hero, twoEggs, collectTwoEgg, null, this);
-  // this.physics.add.collider(hero, threeEggs, collectThreeEgg, null, this);
+  this.physics.add.collider(hero, eggs2, collectTwoEgg, null, this);
+  this.physics.add.collider(hero, eggs3, collectThreeEgg, null, this);
 }
 
 function update() {
@@ -168,19 +167,32 @@ function collectOneEgg(hero, egg) {
 
   if (eggs.countActive(true) === 0) {
     eggs.children.iterate(function (child) {
-      child.enableBody(true, child.x, 500, child.y,-500,true, true);
+      child.enableBody(true, child.x, 500, child.y, -500, true, true);
     });
   }
 }
 
-// function collectTwoEgg(hero, twoEggs) {
-//   twoEggs.disableBody(true, true);
-//   eggScore += 2;
-//   eggCount.setText(eggScore);
-// }
+function collectTwoEgg(hero, egg2) {
+  egg2.disableBody(true, true);
+  eggScore += 2;
+  eggCount.setText(eggScore);
 
-// function collectThreeEgg(hero, threeEggs) {
-//   threeEggs.disableBody(true, true);
-//   eggScore += 3;
-//   eggCount.setText(eggScore);
-// }
+  if (eggs2.countActive(true) === 0) {
+    eggs2.children.iterate(function (child) {
+      child.enableBody(true, child.x, 320, child.y, -320, true, true);
+    });
+  }
+}
+
+function collectThreeEgg(hero, egg3) {
+  egg3.disableBody(true, true);
+  eggScore += 3;
+  eggCount.setText(eggScore);
+
+    if (eggs3.countActive(true) === 0) {
+      eggs3.children.iterate(function (child) {
+        child.enableBody(true, child.x, 145, child.y, -145, true, true);
+      });
+    }
+
+}
