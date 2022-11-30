@@ -8,7 +8,7 @@ let config = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: true
+      debug: false
     }
   },
   scene: {
@@ -32,6 +32,7 @@ let eggs3;
 let gameOver = false;
 let statusText;
 let platforms;
+let audio_theme;
 
 let game = new Phaser.Game(config);
 
@@ -45,10 +46,20 @@ function preload() {
   this.load.image("egg3", "assets/three-eggs.png");
   this.load.image("eggCount", "assets/egg-count.png");
   this.load.image("lifeCount", "assets/life-count.png");
-  this.load.spritesheet("hero", "assets/hero.png", {
-    frameWidth: 50,
-    frameHeight: 58
+
+  // Loading spritesheets for run and idle anims
+  this.load.spritesheet("idle", "assets/idle_sheet.png", {
+    frameWidth: 80,
+    frameHeight: 80
   });
+
+  this.load.spritesheet("run", "assets/run_sheet.png", {
+    frameWidth: 80,
+    frameHeigth: 80
+  });
+
+  // Loading game theme sound
+  this.load.audio("theme", "assets/theme.mp3");
 }
 
 // Create function
@@ -56,9 +67,42 @@ function create() {
   this.add.image(400, 300, "dungeon");
 
   // Appending hero sprite
-  hero = this.physics.add.sprite(190, 300, "hero");
+  hero = this.physics.add.sprite(190, 300, "idle");
   hero.setBounce(0.2);
   hero.setCollideWorldBounds(true);
+
+  // Adding theme sound
+  audio_theme = this.sound.add("theme");
+  audio_theme.play();
+
+  // Anims for hero sprite
+  this.anims.create({
+    key: "left",
+    frameRate: 35,
+    repeat: -1,
+    frames: this.anims.generateFrameNumbers("run", { start: 1, end: 23 })
+  });
+
+  this.anims.create({
+    key: "right",
+    frameRate: 35,
+    repeat: -1,
+    frames: this.anims.generateFrameNumbers("run", { start: 1, end: 23 })
+  });
+
+  this.anims.create({
+    key: "idle",
+    frameRate: 10,
+    repeat: -1,
+    frames: this.anims.generateFrameNumbers("idle", { start: 1, end: 17 })
+  });
+
+  this.anims.create({
+    key: "down",
+    frameRate: 35,
+    repeat: -1,
+    frames: this.anims.generateFrameNumbers("run", { start: 1, end: 23 })
+  });
 
   // Appending dragons
   dragons = this.physics.add.staticGroup({
@@ -74,21 +118,14 @@ function create() {
         key: "dragon-awake",
         frames: [{ key: "dragon-asleep" }, { key: "dragon-awake" }],
         // How often it changes from asleep to awake
-        frameRate: Math.random(),
+        frameRate: 0.5+Math.random(),
         repeat: -1
       },
       true
     );
   });
 
-  // Appending dragons as a group + iterate over dragons and make them come awake randomly
-  dragons = this.physics.add.staticGroup({
-    setScale: { x: 0.9, y: 0.9 },
-    key: "dragon-asleep",
-    repeat: 2,
-    setXY: { x: 620, y: 130, stepY: 180 }
-  });
-
+  // Iterate over dragons and make them come awake randomly
   this.anims.create({
     key: "dragon-awake",
     frames: [{ key: "dragon-awake" }, { key: "dragon-asleep" }],
@@ -109,6 +146,7 @@ function create() {
   dragons.children.iterate((child) => {
     animDragon(child);
   });
+
   // Appending eggs as a group
   eggs = this.physics.add.staticGroup({
     key: "egg",
@@ -164,21 +202,29 @@ function update() {
   // Left
   if (cursors.left.isDown) {
     hero.setVelocityX(-160);
+    hero.flipX = true;
+    hero.anims.play("left", true);
 
     // Right
   } else if (cursors.right.isDown) {
     hero.setVelocityX(160);
+    hero.flipX = false;
+    hero.anims.play("right", true);
 
     // Up
   } else if (cursors.up.isDown) {
     hero.setVelocityY(-160);
+    hero.anims.play("right", true);
 
     // Down
   } else if (cursors.down.isDown) {
     hero.setVelocityY(160);
+    hero.anims.play("down", true);
 
     // No weird gravity when character is idle
   } else {
+    hero.anims.play("idle", true);
+
     hero.setVelocityX(0);
     hero.setVelocityY(0);
   }
@@ -225,24 +271,24 @@ function collectThreeEgg(hero, egg3) {
 }
 // Touching fire and game ending
 function hitFireBreath(hero, dragon) {
-  if (lifeScore === 1) {
+  setTimeout(() => {
+    lifeScore -= 1;
+    lifeCount.setText(lifeScore);
+  }, 10);
+
+  if (lifeScore === 1 && audio_theme.isPlaying) {
+    audio_theme.stop();
     gameOver = true;
     dragons.children.iterate(function (child) {
-      child.disableBody(true, true)
-
-    })
-    hero.disableBody(true, true)
+      child.disableBody(true, true);
+    });
+    hero.disableBody(true, true);
     statusText.setText(`You Loose! \n\nBut you garnered ${eggScore} eggs!`);
   } else {
-    setTimeout(() => {
-      lifeScore -= 1;
-      lifeCount.setText(lifeScore);
-    }, 90);
-
     this.physics.pause();
     hero.setTint(0xff0000);
 
-    this.time.delayedCall(90, resume, []);
+    this.time.delayedCall(100, resume, []);
 
     setTimeout(() => {
       this.physics.resume();
