@@ -23,14 +23,15 @@ let hero;
 let cursors;
 let eggScore = 0;
 let eggCount;
-let lifeCount = 3;
+let lifeScore = 3;
+let lifeCount;
 let dragons;
 let eggs;
 let eggs2;
 let eggs3;
 let gameOver = false;
 let statusText;
-let platforms
+let platforms;
 
 let game = new Phaser.Game(config);
 
@@ -125,7 +126,7 @@ function create() {
   });
 
   // Appending egg and life count symbols
-  platforms = this.physics.add.staticGroup()
+  platforms = this.physics.add.staticGroup();
   platforms.create(16, 583, "eggCount");
   platforms.create(80, 583, "lifeCount");
 
@@ -217,19 +218,17 @@ function collectThreeEgg(hero, egg3) {
 
 // Touching fire and game ending
 function hitFireBreath(hero, dragon) {
-  if (
-    dragons.children.entries[1].anims.currentAnim.frames[1].nextFrame
-      .textureKey === "dragon-awake"
-  ) {
-    console.log("awake-die");
-    gameOver = true;
-    statusText.setText("You Loose!");
-    this.physics.pause();
+  console.log("awake-die");
+  while (lifeScore > 0) {
+    lifeScore -= 1;
     hero.setTint(0xff0000);
-  } else if (
-    dragons.children.entries[1].anims.currentAnim.frames[1].nextFrame
-      .textureKey === "dragon-asleep"
-  ) {
-    console.log("alive-stay");
+
+    this.time.delayedCall(2000, resume, []);
+
+    lifeCount.setText(lifeScore);
   }
+}
+
+function resume() {
+  hero.clearTint();
 }
