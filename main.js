@@ -90,22 +90,25 @@ function create() {
   });
 
   this.anims.create({
-    key: "dracaris",
-    frames: [
-      { key: "dragon-awake", duration: 1000 },
-      { key: "dragon-asleep", duration: 0 }
-    ]
+    key: "dragon-awake",
+    frames: [{ key: "dragon-awake" }, { key: "dragon-asleep" }],
+    repeat: 0
   });
 
   function animDragon(dragon) {
-    dragon.anims.play({
-      key: "dracaris"
-    });
-    setTimeout(() => animDragon(dragon), 1000 + 2000 * Math.random());
+    dragon.anims.play(
+      {
+        key: "dragon-awake",
+        frameRate: 0.5 + Math.random()
+      },
+      true
+    );
+    setTimeout(() => animDragon(dragon), 1000 + 5000 * Math.random());
   }
 
-  dragons.children.iterate((child) => animDragon(child));
-
+  dragons.children.iterate((child) => {
+    animDragon(child);
+  });
   // Appending eggs as a group
   eggs = this.physics.add.staticGroup({
     key: "egg",
@@ -215,20 +218,27 @@ function collectThreeEgg(hero, egg3) {
     });
   }
 }
-
 // Touching fire and game ending
 function hitFireBreath(hero, dragon) {
-  console.log("awake-die");
-  while (lifeScore > 0) {
+  console.log(dragons);
+  setTimeout(() => {
     lifeScore -= 1;
-    hero.setTint(0xff0000);
-
-    this.time.delayedCall(2000, resume, []);
-
     lifeCount.setText(lifeScore);
-  }
+  }, 1000);
+
+  this.physics.pause();
+  hero.setTint(0xff0000);
+
+  this.time.delayedCall(90, resume, []);
+
+    setTimeout(() => {
+      this.physics.resume()
+    }, 3000);
+
+  0;
 }
 
 function resume() {
   hero.clearTint();
+  hero.setPosition(190, 300);
 }
