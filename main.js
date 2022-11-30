@@ -138,7 +138,12 @@ function create() {
   lifeCount = this.add.text(94, 570, "3", { fontSize: "30px", fill: "#000" });
 
   // End Screen text
-  statusText = this.add.text(300, 300, "", { fontSize: "30px", fill: "#000" });
+  statusText = this.add.text(250, 250, "", {
+    backgroundColor: "green",
+    align: "center",
+    fontSize: "19px",
+    fill: "#000"
+  });
 
   // Overlaps to make eggs dissapear when hero grabs it
   this.physics.add.overlap(hero, eggs, collectOneEgg, null, this);
@@ -220,22 +225,29 @@ function collectThreeEgg(hero, egg3) {
 }
 // Touching fire and game ending
 function hitFireBreath(hero, dragon) {
-  console.log(dragons);
-  setTimeout(() => {
-    lifeScore -= 1;
-    lifeCount.setText(lifeScore);
-  }, 1000);
+  if (lifeScore === 1) {
+    gameOver = true;
+    dragons.children.iterate(function (child) {
+      child.disableBody(true, true)
 
-  this.physics.pause();
-  hero.setTint(0xff0000);
+    })
+    hero.disableBody(true, true)
+    statusText.setText(`You Loose! \n\nBut you garnered ${eggScore} eggs!`);
+  } else {
+    setTimeout(() => {
+      lifeScore -= 1;
+      lifeCount.setText(lifeScore);
+    }, 90);
 
-  this.time.delayedCall(90, resume, []);
+    this.physics.pause();
+    hero.setTint(0xff0000);
+
+    this.time.delayedCall(90, resume, []);
 
     setTimeout(() => {
-      this.physics.resume()
-    }, 3000);
-
-  0;
+      this.physics.resume();
+    }, 900);
+  }
 }
 
 function resume() {
