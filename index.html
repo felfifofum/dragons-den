@@ -24,6 +24,8 @@
       let statusText;
       let platforms;
       let audio_theme;
+      let audio_egg;
+      let isCaptured;
 
       let config = {
         type: Phaser.AUTO,
@@ -69,6 +71,8 @@
 
         // Loading game theme sound
         this.load.audio("theme", "assets/theme.mp3");
+        // Loading egg capture sound
+        this.load.audio("egg", "assets/egg.wav");
       }
 
       // Create function
@@ -86,7 +90,11 @@
         // Adding theme sound
         audio_theme = this.sound.add("theme");
         audio_theme.play();
-        audio_theme.setVolume(0.1)
+        audio_theme.setVolume(0.1);
+
+        // Adding egg capture sound
+        audio_egg = this.sound.add("egg");
+        audio_egg.setVolume(1);
 
         // Anims for hero sprite
         this.anims.create({
@@ -251,12 +259,19 @@
 
       // Global functions
       function collectOneEgg(hero, egg) {
+        isCaptured = true;
         egg.disableBody(true, true);
         eggScore += 1;
         eggCount.setText(eggScore);
 
+        if (isCaptured) {
+          audio_egg.play();
+        }
+
         if (eggs.countActive(true) === 0) {
-          console.log("I've got nothing left - Ian Beale - Eastenders circa 2014");
+          console.log(
+            "I've got nothing left - Ian Beale - Eastenders circa 2014"
+          );
           eggs.children.iterate(function (child) {
             child.enableBody(true, child.x, 500, child.y, -500, true, true);
           });
@@ -264,12 +279,19 @@
       }
 
       function collectTwoEgg(hero, egg2) {
+        isCaptured = true;
         egg2.disableBody(true, true);
         eggScore += 2;
         eggCount.setText(eggScore);
 
+        if (isCaptured) {
+          audio_egg.play();
+        }
+
         if (eggs2.countActive(true) === 0) {
-          console.log("I've got nothing left - Ian Beale - Eastenders circa 2014");
+          console.log(
+            "I've got nothing left - Ian Beale - Eastenders circa 2014"
+          );
           eggs2.children.iterate(function (child) {
             child.enableBody(true, child.x, 320, child.y, -320, true, true);
           });
@@ -277,12 +299,19 @@
       }
 
       function collectThreeEgg(hero, egg3) {
+        isCaptured = true;
         egg3.disableBody(true, true);
         eggScore += 3;
         eggCount.setText(eggScore);
 
+        if (isCaptured) {
+          audio_egg.play();
+        }
+
         if (eggs3.countActive(true) === 0) {
-          console.log("I've got nothing left - Ian Beale - Eastenders circa 2014");
+          console.log(
+            "I've got nothing left - Ian Beale - Eastenders circa 2014"
+          );
           eggs3.children.iterate(function (child) {
             child.enableBody(true, child.x, 145, child.y, -145, true, true);
           });
