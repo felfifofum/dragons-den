@@ -26,6 +26,8 @@
       let audio_theme;
       let audio_egg;
       let isCaptured;
+      let isCrispy;
+      let audio_roar;
 
       let config = {
         type: Phaser.AUTO,
@@ -73,6 +75,8 @@
         this.load.audio("theme", "assets/theme.mp3");
         // Loading egg capture sound
         this.load.audio("egg", "assets/egg.wav");
+        // Load roar sound
+        this.load.audio("roar", "assets/roar.mp3");
       }
 
       // Create function
@@ -94,7 +98,11 @@
 
         // Adding egg capture sound
         audio_egg = this.sound.add("egg");
-        audio_egg.setVolume(1);
+        audio_egg.setVolume(0.5);
+
+        // Adding roar sound
+        audio_roar = this.sound.add("roar");
+        audio_roar.setVolume(0.8);
 
         // Anims for hero sprite
         this.anims.create({
@@ -319,6 +327,12 @@
       }
       // Touching fire and game ending
       function hitFireBreath(hero, dragon) {
+        isCrispy = true;
+
+        if (isCaptured) {
+          audio_roar.play();
+        }
+
         setTimeout(() => {
           lifeScore -= 1;
           lifeCount.setText(lifeScore);
