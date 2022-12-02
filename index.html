@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <title>DRAGONS' DEN</title>
@@ -78,11 +78,15 @@
         // Appending hero sprite
         hero = this.physics.add.sprite(190, 300, "idle");
         hero.setBounce(0.2);
+        hero.setScale(1.62);
         hero.setCollideWorldBounds(true);
+        // Makes debug box smaller/bigger - takes width and height
+        hero.setSize(1, 47);
 
         // Adding theme sound
         audio_theme = this.sound.add("theme");
         audio_theme.play();
+        audio_theme.setVolume(0.1)
 
         // Anims for hero sprite
         this.anims.create({
@@ -121,18 +125,18 @@
           setXY: { x: 620, y: 130, stepY: 180 }
         });
 
-        dragons.children.iterate((child) => {
-          child.anims.play(
-            {
-              key: "dragon-awake",
-              frames: [{ key: "dragon-asleep" }, { key: "dragon-awake" }],
-              // How often it changes from asleep to awake
-              frameRate: 0.5 + Math.random(),
-              repeat: -1
-            },
-            true
-          );
-        });
+        // dragons.children.iterate((child) => {
+        //   child.anims.play(
+        //     {
+        //       key: "dragon-awake",
+        //       frames: [{ key: "dragon-asleep" }, { key: "dragon-awake" }],
+        //       // How often it changes from asleep to awake
+        //       frameRate: 0.5 + Math.random(),
+        //       repeat: -1
+        //     },
+        //     true
+        //   );
+        // });
 
         // Iterate over dragons and make them come awake randomly
         this.anims.create({
@@ -252,7 +256,7 @@
         eggCount.setText(eggScore);
 
         if (eggs.countActive(true) === 0) {
-          console.log("I've got nothing left - Ian Beale circa 2014");
+          console.log("I've got nothing left - Ian Beale - Eastenders circa 2014");
           eggs.children.iterate(function (child) {
             child.enableBody(true, child.x, 500, child.y, -500, true, true);
           });
@@ -265,7 +269,7 @@
         eggCount.setText(eggScore);
 
         if (eggs2.countActive(true) === 0) {
-          console.log("I've got nothing left - Ian Beale circa 2014");
+          console.log("I've got nothing left - Ian Beale - Eastenders circa 2014");
           eggs2.children.iterate(function (child) {
             child.enableBody(true, child.x, 320, child.y, -320, true, true);
           });
@@ -278,7 +282,7 @@
         eggCount.setText(eggScore);
 
         if (eggs3.countActive(true) === 0) {
-          console.log("I've got nothing left - Ian Beale circa 2014");
+          console.log("I've got nothing left - Ian Beale - Eastenders circa 2014");
           eggs3.children.iterate(function (child) {
             child.enableBody(true, child.x, 145, child.y, -145, true, true);
           });
@@ -305,7 +309,7 @@
           this.physics.pause();
           hero.setTint(0xff0000);
 
-          this.time.delayedCall(100, resume, []);
+          this.time.delayedCall(600, resume, []);
 
           setTimeout(() => {
             this.physics.resume();
